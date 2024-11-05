@@ -16,7 +16,7 @@ router.get('stats', async (req, res) => {
             $project: {
                 _id: 0,
                 totalLearners: 1,
-                learnersAbover50: { $multiply: [{ $divide: ['$learnersAbove70', '$totalLearners'] }, 100] },
+                learnersAbover50: { $multiply: [{ $divide: ['$learnersAbove50', '$totalLearners'] }, 100] },
             },
         },
     ];
@@ -36,7 +36,7 @@ router.get('/stats/:id', async (req, res) => {
         $group: {
           _id: null,
           totalLearners: { $sum: 1 },
-          learnersAbove70: { $sum: { $cond: [{ $gt: ['$weightedAverage', 70] }, 1, 0] } },
+          learnersAbove50: { $sum: { $cond: [{ $gt: ['$weightedAverage', 50] }, 1, 0] } },
         },
       },
       {
@@ -44,7 +44,7 @@ router.get('/stats/:id', async (req, res) => {
           _id: 0,
           totalLearners: 1,
           learnersAbove70: 1,
-          percentageAbove70: { $multiply: [{ $divide: ['$learnersAbove70', '$totalLearners'] }, 100] },
+          percentageAbove70: { $multiply: [{ $divide: ['$learnersAbove50', '$totalLearners'] }, 100] },
         },
       },
     ];
