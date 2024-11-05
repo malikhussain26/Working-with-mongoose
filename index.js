@@ -2,10 +2,13 @@ import express from "express";
 import "dotenv/config";
 import grades from './routes/grades.js';
 import grades_agg from "./routes/grades_agg.js";
-
+import gradesStatsRouter from './routes/stats.js';
 
 const PORT = process.env.PORT || 3000
 const app = express();
+
+// GET route at /grades/stats
+app.use('/grades', gradesStatsRouter);
 
 // Body parser middleware
 app.use(express.json())

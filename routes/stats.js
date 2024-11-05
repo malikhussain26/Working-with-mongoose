@@ -1,7 +1,8 @@
-const express = require("express");
+import express from "express";
 const router = express.Router();
-const db = require('../db/conn');
+import db from '../db/conn.js';
 
+// GET route at /grades/stats
 router.get('stats', async (req, res) => {
     const pipeline = [
         {
@@ -24,4 +25,33 @@ router.get('stats', async (req, res) => {
     res.json(result[0]);
 });
 
-module.exports = router;
+//  GET route at /grades/stats/:id
+router.get('/stats/:id', async (req, res) => {
+    const classId = parseInt(req.params.id);
+    const pipeline = [
+      {
+        $match: { class_id: classId },
+      },
+      {
+        $group: {
+          _id: null,
+          totalLearners: { $sum: 1 },
+          learnersAbove70: { $sum: { $cond: [{ $gt: ['$weightedAverage', 70] }, 1, 0] } },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          totalLearners: 1,
+          learnersAbove70: 1,
+          percentageAbove70: { $multiply: [{ $divide: ['$learnersAbove70', '$totalLearners'] }, 100] },
+        },
+      },
+    ];
+  
+    const result = await db.collection('grades').aggregate(pipeline).toArray();
+    res.json(result[0]);
+  });
+
+
+export default router;
